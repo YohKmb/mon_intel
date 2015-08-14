@@ -27,8 +27,14 @@ module Fluent
         raise ConfigError, "'password' parameter is required on file output"
       end
 
-      scheme = @ssl == true ? "https" : "http"
-      @base_uri = "#{scheme}://#{@host}:#{@port}/"
+      # scheme = @ssl == true ? "https" : "http"
+      # @base_uri = "#{scheme}://#{@host}:#{@port}/"
+
+      @host = conf["host"]
+      @port = conf["port"]
+      @user = conf["user"]
+      @password = conf["password"]
+
     end
 
     def start
@@ -49,10 +55,9 @@ module Fluent
     def emit(tag, es, chain)
       chain.next
       es.each {|time,record|
-        eapier = Eapier.new(["show version"], nil, "eapi", "password", nil,
-                            nil, nil, true, nil, true, "192.168.1.250")
+        eapier = Eapier.new(["show version"], nil, @user, @password, nil,
+                            nil, nil, true, nil, true, @host)
         $stderr.puts eapier.start
-        # $stderr.puts "OK. I got a log message !"
       }
     end
 
