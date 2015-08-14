@@ -55,9 +55,13 @@ module Fluent
     def emit(tag, es, chain)
       chain.next
       es.each {|time,record|
-        eapier = Eapier.new(["show version"], nil, @user, @password, nil,
+        eapier = Eapier.new(["show directflow detail"], nil, @user, @password, nil,
                             nil, nil, true, nil, true, @host)
-        $stderr.puts eapier.start
+        $stderr.puts JSON.pretty_generate(JSON.load(eapier.start))
+        # es.each do |ts, rec|
+        #   $stderr.puts rec
+        # end
+        # $stderr.puts eapier.start
       }
     end
 
