@@ -17,34 +17,34 @@ module Eapi
   require "json"
   require "resolv"
 
-  Version = "v1.0"
+  Version = "v1.1"
 
   # params = ARGV.getopts("f:u:p:Tsec", "port")
 
   USAGE = <<EOT
-    usage : #{__FILE__} [options] [targets]
+  usage : #{__FILE__} [options] [targets]
 
-      [options]
-        -f filename : specify a JSON formatted file in which targets
-                      and infomation for their authentication are listed
-        -u user
-        -p password
-        -T : switch the output format to text-dumping of show CLI commands
-             (default is JSON formatted outputs)
-        -s : use https protocol for eAPI connection
-        -e : prepend "enable" command to executed commands list
-        -c : prepend "enable" and "configure" commands to executed commands list
+    [options]
+      -f filename : specify a JSON formatted file in which targets
+                    and infomation for their authentication are listed
+      -u user
+      -p password
+      -T : switch the output format to text-dumping of show CLI commands
+           (default is JSON formatted outputs)
+      -s : use https protocol for eAPI connection
+      -e : prepend "enable" command to executed commands list
+      -c : prepend "enable" and "configure" commands to executed commands list
 
-    example :
-        echo -e "show hostname\\nshow version" | \\
-          ./eapier.rb.rb -T -s -u admin -p password 192.168.1.1
+  example :
+      echo -e "show hostname\\nshow version" | \\
+        ./eapier.rb.rb -T -s -u admin -p password 192.168.1.1
 
-        the example above send `show hostname` and `show version` commands to
-        an EOS node who resides in 192.168.1.1.
+      the example above send `show hostname` and `show version` commands to
+      an EOS node who resides in 192.168.1.1.
 
-        -s means the connection is established as https
-        -T means you specify the format of outputs returned from EOS not in JSON,
-           but in text-dump.
+      -s means the connection is established as https
+      -T means you specify the format of outputs returned from EOS not in JSON,
+         but in text-dump.
 
 EOT
 
@@ -299,9 +299,11 @@ EOT
 
     eapier = Eapier.new(runcmds, filename_targets, user, passwd, is_https, port_dst,
                is_text, is_enable, is_conf, as_lib, *arglist)
-    eapier.start
+    return eapier.start
 
   end
+
+  module_function :_help, :post_api
 
 
   if __FILE__ == $0
@@ -314,7 +316,6 @@ EOT
 
     post_api(runcmds, params["f"], params["u"], params["p"], params["s"],
                         params["port"], params["T"], params["e"], params["c"], nil, *ARGV)
-    # eapier.start
   end
 
 end
