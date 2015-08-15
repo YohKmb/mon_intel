@@ -45,17 +45,16 @@ module Fluent
       super
     end
 
-    # This method is called when an event reaches Fluentd.
-    # 'es' is a Fluent::EventStream object that includes multiple events.
-    # You can use 'es.each {|time,record| ... }' to retrieve events.
-    # 'chain' is an object that manages transactions. Call 'chain.next' at
-    # appropriate points and rollback if it raises an exception.
-    #
-    # NOTE! This method is called by Fluentd's main thread so you should not write slow routine here. It causes Fluentd's performance degression.
     def emit(tag, es, chain)
       es.each do |time,record|
+        
         res = Eapi::post_api(["show directflow detail"], nil, @user, @password, nil,
-                            nil, nil, true, nil, true, @host)
+                            nil, nil, true, nil, true, @host)["result"]
+        names_flow = res[1]["flows"].map do |flow| flow["name"] end
+        is_exist = names_flow.map do |name|
+          record["id.orig_h"] == name.split("-")[0].gsub(/_/, ".")
+        end
+        is_exist = is_exist.any?
 
         Engine.emit("bro.intel.processed", time, res)
       end
