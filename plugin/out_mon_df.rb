@@ -1,6 +1,6 @@
 module Fluent
 
-  class SomeOutput < Output
+  class MonDfEapi < Output
     Fluent::Plugin.register_output("mon_df", self)
 
     config_param :host, :string, :default => nil
@@ -47,7 +47,7 @@ module Fluent
 
     def emit(tag, es, chain)
       es.each do |time,record|
-        
+
         res = Eapi::post_api(["show directflow detail"], nil, @user, @password, nil,
                             nil, nil, true, nil, true, @host)["result"]
         names_flow = res[1]["flows"].map do |flow| flow["name"] end
