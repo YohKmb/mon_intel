@@ -53,17 +53,22 @@ module Fluent
     #
     # NOTE! This method is called by Fluentd's main thread so you should not write slow routine here. It causes Fluentd's performance degression.
     def emit(tag, es, chain)
-      chain.next
-      es.each {|time,record|
+      es.each do |time,record|
         eapier = Eapier.new(["show directflow detail"], nil, @user, @password, nil,
                             nil, nil, true, nil, true, @host)
-        $stderr.puts JSON.pretty_generate(JSON.load(eapier.start))
+
+        res = eapier.start
+        Engine.emit("bro.intel.processed", time, res)
+        # Engine.emit("bro.intel.processed", time, {"status"=>"ok"})
         # es.each do |ts, rec|
         #   $stderr.puts rec
         # end
-        # $stderr.puts eapier.start
-      }
+        # $stderr.puts "ok"
+      end
+
+      chain.next
     end
 
   end
 end
+

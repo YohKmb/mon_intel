@@ -184,11 +184,11 @@ class Eapier
       host += " (#{sol})" if sol
 
       if res.nil?
-        @Formatter::alert(host, "Warning : Skip #{host} and go to the next target host")
+        return @Formatter::alert(host, "Warning : Skip #{host} and go to the next target host")
         next
       end
 
-      @Formatter::format(host, @runcmds, res)
+      return @Formatter::format(host, @runcmds, res)
     end
   end
 
@@ -231,11 +231,13 @@ end
 class LibJsonFormatter < LogFormatter
   class << self
     def format(host, runcmds, htres)
-      puts JSON.load(htres.body)
+      # return htres.body
+      return JSON.load(htres.body)
     end
 
     def alert(host, msg)
-      JSON.pretty_generate({"error" => msg})
+      return {"error" => msg}
+      # JSON.pretty_generate({"error" => msg})
     end
   end
 end
@@ -303,3 +305,5 @@ if __FILE__ == $0
                       params["port"], params["T"], params["e"], params["c"], nil, *ARGV)
   eapier.start
 end
+
+
