@@ -68,13 +68,13 @@ module Fluent
 
             if direction == "in"
               flowmtch = [
-                  "match source ip %s" % record['id.orig_h']
+                  "match source ip %s" % record['id.orig_h'] #,
               # "timeout hard %s" % FLOW_DURATION
               # "no persistent"
               ]
             else
               flowmtch = [
-                  "match destination ip %s" % record['id.orig_h']
+                  "match destination ip %s" % record['id.orig_h'] #,
               # "timeout hard %s" % FLOW_DURATION
               # "no persistent"
               ]
