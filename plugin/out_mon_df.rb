@@ -6,7 +6,6 @@ module Fluent
     config_param :host, :string, :default => nil
     config_param :if_mirror, :string, :default => nil
     config_param :port, :integer, :default => 80
-    config_param :base_uri, :string, :default => nil
     config_param :ssl, :bool, :default => nil
     config_param :user, :string, :default => nil
     config_param :password, :string, :default => nil
@@ -44,7 +43,7 @@ module Fluent
 
       # def post_api(runcmds, filename_targets, user, passwd, is_https, port_dst,
       #              is_text, is_enable, is_conf, as_lib, *arglist)
-      resp_eapi = Eapi::post_api(["show directflow detail"], nil, @user, @password, nil, nil,
+      resp_eapi = Eapi::post_api(["show directflow detail"], nil, @user, @password, @ssl, @port,
                                  nil, true, nil, true, @host)["result"]
 
       names_flow = resp_eapi[1]["flows"].map do |flow| flow["name"].split("-")[0].gsub(/_/, ".") end
