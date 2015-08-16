@@ -30,15 +30,6 @@ module Fluent
       unless @password
         raise ConfigError, "'password' parameter is required on file output"
       end
-
-      # scheme = @ssl == true ? "https" : "http"
-      # @base_uri = "#{scheme}://#{@host}:#{@port}/"
-
-      # @host = conf["host"]
-      # @port = conf["port"]
-      # @user = conf["user"]
-      # @password = conf["password"]
-
     end
 
     def start
@@ -51,10 +42,11 @@ module Fluent
 
     def emit(tag, es, chain)
 
-      resp_eapi = Eapi::post_api(["show directflow detail"], nil, @user, @password, nil, nil,
-                                 nil, true, nil, true, @host)["result"]
       # def post_api(runcmds, filename_targets, user, passwd, is_https, port_dst,
       #              is_text, is_enable, is_conf, as_lib, *arglist)
+      resp_eapi = Eapi::post_api(["show directflow detail"], nil, @user, @password, nil, nil,
+                                 nil, true, nil, true, @host)["result"]
+
       names_flow = resp_eapi[1]["flows"].map do |flow| flow["name"].split("-")[0].gsub(/_/, ".") end
 
       es.each do |time,record|

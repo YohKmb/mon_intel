@@ -1,6 +1,5 @@
 #! /usr/bin/env ruby
 
-
 #
 #  Author:: Yoh Kamibayashi (<yoh134shonan@gmail.com>)
 #  Copyright:: Copyright (c) 2015 Yoh Kamibayashi
