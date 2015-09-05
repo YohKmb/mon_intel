@@ -1,7 +1,6 @@
 #! /usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
-require "json"
 require "csv"
 require "zlib"
 
@@ -20,66 +19,61 @@ EAPI_PASSWORD = 'password'
 IS_SSL = false
 EAPI_PORT = 80
 
-# resp_eapi = Eapi::post_api(["show directflow detail"], nil, @user, @password, @ssl, @port,
-#                            nil, true, nil, true, @host)["result"]
 
 def _create_df (recdicts, wfd)
+
+  # def post_api(runcmds, filename_targets, user, passwd, is_https, port_dst,
+  #              is_text, is_enable, is_conf, as_lib, *arglist)
+
   resp_eapi = Eapi::post_api(["show directflow detail"], nil, EAPI_USER, EAPI_PASSWORD, IS_SSL, EAPI_PORT,
                              nil, true, nil, true, SWITCH_ADDR)["result"]
   names_flow = resp_eapi[1]["flows"].map do |flow| flow["name"].split("-")[0].gsub(/_/, ".") end
 
-  recdicts.each do |time,record|
+  recdicts.each do |record|
 
-    res = "[-] Error : Aborted."
+    begin
+      res = "[-] Error : Aborted."
 
-    is_exist = names_flow.map do |name|
-      record["id_orig_h"] == name
-    end
-    is_exist = is_exist.any?
-
-    if is_exist
-      res = "[-] Warning : Monitoring flows for %s already exist. Abort new creations." % record["id_orig_h"]
-      # res = {"error" => "Monitoring flows for %s already exist. Abort new creations." % record["id.orig_h"]}
-    else
-      # res = {"status_exec" => []}
-
-      directions = ["in", "out"]
-      for direction in directions
-        flow_entry = "flow %s-%s-%s" % [record['id_orig_h'].gsub('.', '_'), record['uid'], direction]
-        cmds = []
-        precmds = ["directflow", flow_entry]
-
-        if direction == "in"
-          flowmtch = [
-              "match source ip %s" % record['id_orig_h'] #,
-          # "timeout hard %s" % FLOW_DURATION
-          # "no persistent"
-          ]
-        else
-          flowmtch = [
-              "match destination ip %s" % record['id_orig_h'] #,
-          # "timeout hard %s" % FLOW_DURATION
-          # "no persistent"
-          ]
-        end
-        flowact = ["action egress mirror %s" % MIRROR_INTF]
-        cmds.push(*precmds, *flowmtch, *flowact)
-
-        res = Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, nil, nil,
-                             nil, nil, true, true, EAPI_PORT)
-
-        # res["status_exec"].push(
-        #     resp_eapi = Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, nil, nil,
-        #                                nil, nil, true, true, EAPI_PORT)
-        # )
+      is_exist = names_flow.map do |name|
+        record["id_orig_h"] == name
       end
+      is_exist = is_exist.any?
+
+      if is_exist
+        res = "[-] Warning : Monitoring flows for %s already exist. Abort new creations." % record["id_orig_h"]
+
+      else
+        directions = ["in", "out"]
+        for direction in directions
+          flow_entry = "flow %s-%s-%s" % [record['id_orig_h'].gsub('.', '_'), record['uid'], direction]
+          cmds = []
+          precmds = ["directflow", flow_entry]
+
+          if direction == "in"
+            flowmtch = [
+                "match source ip %s" % record['id_orig_h'] #,
+            # "timeout hard %s" % FLOW_DURATION
+            ]
+          else
+            flowmtch = [
+                "match destination ip %s" % record['id_orig_h'] #,
+            # "timeout hard %s" % FLOW_DURATION
+            ]
+          end
+          flowact = ["action egress mirror %s" % MIRROR_INTF]
+          cmds.push(*precmds, *flowmtch, *flowact)
+
+          res = Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, IS_SSL, EAPI_PORT,
+                               nil, nil, true, true, SWITCH_ADDR)
+
+        end
+      end
+
+    rescue
+      wfd.puts res
     end
 
-    wfd.puts res
-    # Engine.emit("bro.intel.processed", time, res)
   end
-
-  # wfd.puts "[+] names_flow is %s" % names_flow.to_s
 end
 
 
@@ -102,10 +96,9 @@ if __FILE__ == $0
     end
 
     tab_result = tab_result.each.map do |rec|
-      _rec.to_hash
+      rec.to_hash
     end
     _create_df(tab_result, log_fd)
-    # log_fd.puts "[+] Stab test passed !"
-    # log_fd.puts tab_result.inspect.to_s
+
   end
 end
