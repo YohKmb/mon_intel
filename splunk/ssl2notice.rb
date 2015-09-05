@@ -63,13 +63,13 @@ def _create_df (recdicts, wfd)
           flowact = ["action egress mirror %s" % MIRROR_INTF]
           cmds.push(*precmds, *flowmtch, *flowact)
 
-          res = Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, IS_SSL, EAPI_PORT,
-                               nil, nil, true, true, SWITCH_ADDR)
+          res = "[+] Info : " + String(Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, IS_SSL, EAPI_PORT,
+                               nil, nil, true, true, SWITCH_ADDR) )
 
         end
       end
 
-    rescue
+    ensure
       wfd.puts res
     end
 
@@ -80,7 +80,7 @@ end
 if __FILE__ == $0
 
   File::open(LOG_PATH, "a") do |log_fd|
-    log_fd.puts "[+] %s starts at %s" % [__FILE__, Time.now.to_s]
+    log_fd.puts "[+] Info : %s starts at %s" % [__FILE__, Time.now.to_s]
 
     tab_result = nil
 
