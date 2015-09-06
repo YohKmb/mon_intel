@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby
+#! /usr/bin/ruby
 # -*- coding: utf-8 -*-
 
 require "csv"
@@ -11,7 +11,7 @@ SWITCH_ADDR = '10.60.0.254'
 MIRROR_INTF = "Ethernet51"
 
 # SPLUNK_HOME = "/opt/splunk"
-LOG_PATH = "/var/tmp/%s.log" % __FILE__
+LOG_PATH = "/var/tmp/%s.log" % File::basename(__FILE__)
 
 EAPI_USER = 'eapi'
 EAPI_PASSWORD = 'password'
@@ -51,20 +51,27 @@ def _create_df (recdicts, wfd)
 
           if direction == "in"
             flowmtch = [
-                "match source ip %s" % record['id_orig_h'] #,
+                "match source ip %s" % record["id_orig_h"] #,
             # "timeout hard %s" % FLOW_DURATION
             ]
           else
             flowmtch = [
-                "match destination ip %s" % record['id_orig_h'] #,
+                "match destination ip %s" % record["id_orig_h"] #,
             # "timeout hard %s" % FLOW_DURATION
             ]
           end
           flowact = ["action egress mirror %s" % MIRROR_INTF]
           cmds.push(*precmds, *flowmtch, *flowact)
 
-          res = "[+] Info : " + String(Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, IS_SSL, EAPI_PORT,
-                               nil, nil, true, true, SWITCH_ADDR) )
+          resp_eapi = Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, IS_SSL, EAPI_PORT,
+                                     nil, nil, true, true, SWITCH_ADDR)
+          res = "[+] Info : " + String(resp_eapi)
+
+          if (resp_eapi["result"].map do |resp| resp == {} end).all?
+            names_flow << record["id_orig_h"]
+          end
+          # res = "[+] Info : " + String(Eapi::post_api(cmds, nil, EAPI_USER, EAPI_PASSWORD, IS_SSL, EAPI_PORT,
+          #                      nil, nil, true, true, SWITCH_ADDR) )
 
         end
       end
