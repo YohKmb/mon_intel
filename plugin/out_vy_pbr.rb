@@ -1,7 +1,9 @@
 module Fluent
 
-  class MonDfEapi < Output
+  class MonVyPbr < Output
     Fluent::Plugin.register_output("mon_df", self)
+
+    config_param :hosts, :string, :default => nil
 
     config_param :host, :string, :default => nil
     config_param :if_mirror, :string, :default => nil
